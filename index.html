@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>হিযবুল্লাহ জাগরণী Pro</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #054d32; --bg: #f8f9fa; --card: #ffffff; --text: #2d3436; }
+        .theme-dark { --primary: #00b894; --bg: #121212; --card: #1e1e1e; --text: #dfe6e9; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: 0.3s; font-family: 'Hind Siliguri', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 90px; overflow-x: hidden; }
+
+        header { background: var(--primary); color: white; padding: 30px 20px 50px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        .daily-box { background: var(--card); margin: -30px 20px 20px; padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid var(--primary); }
+
+        .container { padding: 10px 20px; max-width: 600px; margin: 0 auto; }
+        
+        /* ক্যাটাগরি ট্যাব */
+        .cat-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .cat-container::-webkit-scrollbar { display: none; }
+        .cat-item { background: var(--card); padding: 8px 20px; border-radius: 20px; white-space: nowrap; cursor: pointer; border: 1px solid #ddd; font-size: 14px; }
+        .cat-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* গজল কার্ড */
+        .ghazal-card { background: var(--card); padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 5px solid var(--primary); cursor: pointer; }
+
+        /* টুলস গ্রিড */
+        .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .tool-btn { background: var(--card); padding: 20px; border-radius: 20px; text-align: center; cursor: pointer; border-bottom: 3px solid var(--primary); }
+        .tool-btn i { font-size: 30px; color: var(--primary); margin-bottom: 8px; }
+
+        /* পেজ সিস্টেম */
+        .page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; transform: translateX(100%); overflow-y: auto; }
+        .page.active { transform: translateX(0); }
+        .l-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; background: var(--card); position: sticky; top: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10; }
+        .content-body { padding: 30px 20px; line-height: 2.2; font-size: 20px; text-align: center; white-space: pre-line; }
+
+        /* তসবিহ ও ক্যালেন্ডার */
+        .t-circle { width: 160px; height: 160px; border-radius: 50%; border: 8px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 50px; margin: 40px auto; cursor: pointer; }
+        .cal-display { background: var(--primary); color: white; padding: 40px 20px; border-radius: 25px; text-align: center; margin-top: 20px; }
+
+        /* সেটিংস */
+        .set-item { background: var(--card); padding: 18px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* টোস্ট ও ন্যাভ */
+        #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 50px; font-size: 14px; opacity: 0; z-index: 5000; pointer-events: none; }
+        #toast.show { opacity: 1; bottom: 115px; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--card); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; }
+        .nav-item { color: #b2bec3; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 11px; }
+        .nav-item.active { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 style="font-size: 22px;">হিযবুল্লাহ জাগরণী</h1>
+        <p style="opacity: 0.8; font-size: 13px;" id="date-display"></p>
+    </header>
+
+    <div class="daily-box">
+        <p style="font-size: 14px; color: #636e72; font-style: italic;">"তোমাদের মধ্যে সেই ব্যক্তিই সর্বোত্তম, যে কুরআন শেখে এবং অন্যকে শেখায়।"</p>
+    </div>
+
+    <div id="section-home" class="container section">
+        <div class="cat-container">
+            <div class="cat-item active" onclick="filterCat('সব', this)">সব</div>
+            <div class="cat-item" onclick="filterCat('হামদ', this)">হামদ</div>
+            <div class="cat-item" onclick="filterCat('নাত', this)">নাত</div>
+            <div class="cat-item" onclick="filterCat('সংগীত', this)">সংগীত</div>
+        </div>
+
+        <div id="ghazalList">
+            <div class="ghazal-card" onclick="openView('হে খোদা দয়াময়', 'মাওলানা মতিউর রহমান', 'হে খোদা দয়াময়, রহমানুর রাহিম...\nপাহাড়ে পাহাড়ে তোমার মহিমা।', 'হামদ')">
+                <div><h3>হে খোদা দয়াময়</h3><p style="color:#888; font-size:12px;">হামদ - মতিউর রহমান</p></div>
+                <i class="material-icons fav-btn" onclick="event.stopPropagation(); toggleFav('হে খোদা দয়াময়', 'মাওলানা মতিউর রহমান', '...', this)" style="color:#ccc">favorite</i>
+            </div>
+        </div>
+    </div>
+
+    <div id="section-tools" class="container section" style="display:none;">
+        <h3 style="margin-bottom: 15px;">ইসলামী সেবা</h3>
+        <div class="tool-grid">
+            <div class="tool-btn" onclick="openView('মিলাদ ও কিয়াম', 'প্রচলিত', 'ইয়া নবী সালাম আলাইকা\nইয়া রাসুল সালাম আলাইকা\nইয়া হাবীব সালাম আলাইকা\nসালাওয়াতুল্লাহ আলাইকা।', 'সালাম')">
+                <i class="material-icons">mosque</i><p>মিলাদ ও কিয়াম</p>
+            </div>
+            <div class="tool-btn" onclick="openPage('tasbih-page')">
+                <i class="material-icons">fingerprint</i><p>তসবিহ</p>
+            </div>
+            <div class="tool-btn" style="grid-column: span 2;" onclick="openPage('cal-page')">
+                <i class="material-icons">event_note</i><p id="hijri-btn-text">হিজরি ক্যালেন্ডার</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="section-fav" class="container section" style="display:none;">
+        <h3 style="margin-bottom: 15px;">পছন্দের তালিকা</h3>
+        <div id="fav-container"></div>
+    </div>
+
+    <div id="section-settings" class="container section" style="display:none;">
+        <h3 style="margin-bottom: 15px;">সেটিংস</h3>
+        <div class="set-item"><span>ডার্ক মোড</span><input type="checkbox" onchange="document.body.classList.toggle('theme-dark', this.checked)"></div>
+        <div class="set-item"><span>ফন্ট সাইজ</span><input type="range" min="16" max="30" value="20" oninput="document.querySelector('.content-body').style.fontSize = this.value+'px'"></div>
+    </div>
+
+    <div id="cal-page" class="page">
+        <div class="l-header"><i class="material-icons" onclick="closePage('cal-page')">arrow_back</i><h3>ক্যালেন্ডার</h3></div>
+        <div class="container"><div class="cal-display"><h2 id="eng-full"></h2><hr style="margin:20px 0;opacity:0.2"><h1 id="hij-full" style="font-size:32px"></h1><p>হিজরি তারিখ</p></div></div>
+    </div>
+
+    <div id="tasbih-page" class="page">
+        <div class="l-header"><i class="material-icons" onclick="closePage('tasbih-page')">arrow_back</i><h3>তসবিহ</h3></div>
+        <div style="text-align:center"><div class="t-circle" id="t-count" onclick="countT()">0</div><button onclick="count=0;document.getElementById('t-count').innerText=0">রিসেট</button></div>
+    </div>
+
+    <div id="view-page" class="page">
+        <div class="l-header"><i class="material-icons" onclick="closePage('view-page')">arrow_back</i><h3 id="v-title"></h3><i class="material-icons" id="v-fav" onclick="toggleFavFromView()">favorite_border</i></div>
+        <div class="content-body" id="v-text"></div>
+    </div>
+
+    <div id="toast">বার্তা</div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="navTo('home', this)"><i class="material-icons">home</i><span>হোম</span></div>
+        <div class="nav-item" onclick="navTo('tools', this)"><i class="material-icons">widgets</i><span>অন্যান্য</span></div>
+        <div class="nav-item" onclick="navTo('fav', this)"><i class="material-icons">favorite</i><span>পছন্দ</span></div>
+        <div class="nav-item" onclick="navTo('settings', this)"><i class="material-icons">settings</i><span>সেটিংস</span></div>
+    </nav>
+
+    <script>
+        let favs = JSON.parse(localStorage.getItem('ghazalFavs')) || [];
+        let currentG = null; let count = 0;
+
+        function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+
+        function navTo(s, e) {
+            document.querySelectorAll('.section').forEach(x => x.style.display = 'none');
+            document.getElementById('section-' + s).style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            e.classList.add('active');
+            if(s === 'fav') renderFavs();
+        }
+
+        function openPage(id) { document.getElementById(id).classList.add('active'); }
+        function closePage(id) { document.getElementById(id).classList.remove('active'); }
+
+        function openView(t, w, txt, cat) {
+            currentG = {title:t, writer:w, lyrics:txt};
+            document.getElementById('v-title').innerText = t;
+            document.getElementById('v-text').innerText = txt;
+            const isF = favs.some(f => f.title === t);
+            document.getElementById('v-fav').innerText = isF ? 'favorite' : 'favorite_border';
+            document.getElementById('v-fav').style.color = isF ? 'red' : 'inherit';
+            openPage('view-page');
+        }
+
+        function toggleFav(t, w, txt, el) {
+            let i = favs.findIndex(f => f.title === t);
+            if(i > -1) { favs.splice(i, 1); if(el) el.style.color="#ccc"; showToast("সরানো হয়েছে"); }
+            else { favs.push({title:t, writer:w, lyrics:txt}); if(el) el.style.color="red"; showToast("পছন্দ করা হয়েছে"); }
+            localStorage.setItem('ghazalFavs', JSON.stringify(favs));
+        }
+
+        function toggleFavFromView() {
+            toggleFav(currentG.title, currentG.writer, currentG.lyrics);
+            const isF = favs.some(f => f.title === currentG.title);
+            document.getElementById('v-fav').innerText = isF ? 'favorite' : 'favorite_border';
+            document.getElementById('v-fav').style.color = isF ? 'red' : 'inherit';
+        }
+
+        function renderFavs() {
+            const c = document.getElementById('fav-container');
+            if(!favs.length) { c.innerHTML = `<div style="text-align:center;padding:50px;color:#888"><i class="material-icons" style="font-size:40px">favorite_border</i><p>এখনো কোনো কিছু পছন্দ করা হয়নি।</p></div>`; return; }
+            c.innerHTML = "";
+            favs.forEach(f => {
+                c.innerHTML += `<div class="ghazal-card" onclick="openView('${f.title}','${f.writer}',\`${f.lyrics}\`)"><h3>${f.title}</h3><i class="material-icons" style="color:red">favorite</i></div>`;
+            });
+        }
+
+        function filterCat(cat, el) {
+            document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('#ghazalList .ghazal-card').forEach(card => {
+                card.style.display = (cat === 'সব' || card.innerText.includes(cat)) ? 'flex' : 'none';
+            });
+        }
+
+        function countT() { count++; document.getElementById('t-count').innerText = count; if(navigator.vibrate) navigator.vibrate(50); }
+
+        const now = new Date();
+        const hijri = new Intl.DateTimeFormat('bn-BD-u-ca-islamic-umalqura', {day:'numeric', month:'long', year:'numeric'}).format(now);
+        document.getElementById('date-display').innerText = now.toLocaleDateString('bn-BD', {weekday:'long', day:'numeric', month:'long'});
+        document.getElementById('hij-full').innerText = hijri;
+        document.getElementById('eng-full').innerText = now.toLocaleDateString('bn-BD', {day:'numeric', month:'long', year:'numeric'});
+        document.getElementById('hijri-btn-text').innerText = "হিজরি: " + hijri.split(' ')[0] + ' ' + hijri.split(' ')[1];
+    </script>
+</body>
+</html>
